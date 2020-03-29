@@ -1,10 +1,6 @@
 package com.company.domain;
 
-import java.util.logging.Logger;
-
 public class PersonRecord {
-
-    private Logger log = Logger.getAnonymousLogger();
 
     private String firstName;
     private String secondName;
@@ -18,7 +14,7 @@ public class PersonRecord {
         this.phoneNumber = phoneNumber;
     }
 
-    public PersonRecord(){}
+    PersonRecord(){}
 
     public String getFirstName() {
         return firstName;

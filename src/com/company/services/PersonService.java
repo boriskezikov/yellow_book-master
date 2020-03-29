@@ -2,13 +2,11 @@ package com.company.services;
 
 import com.company.domain.PersonRecord;
 
-import java.io.*;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Paths;
-import java.util.ArrayList;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.Collections;
 import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Scanner;
 
 
 //todo
@@ -19,9 +17,14 @@ import java.util.Scanner;
 
 public class PersonService {
 
-    private static String filePath = "C:\\Users\\boke0619\\Downloads\\yellow_book-master\\src\\com\\company\\database.txt";
+    private static PersonService instance;
+    private List<String> book;
     private static BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
 
+
+    private PersonService(List<String> book) {
+        this.book = book;
+    }
 
     public void addRecord() throws IOException {
         PersonRecord currentRecord = PersonRecord.recordProvider();
@@ -33,12 +36,11 @@ public class PersonService {
         currentRecord.setPhoneNumber(inputPhone());
         System.out.println("Input age: ");
         currentRecord.setAge(inputAge());
-        writeRecord(currentRecord.toString());
+        book.add(currentRecord.toString());
     }
 
-    public void delete() throws Exception {
-        Scanner scanner = new Scanner(Paths.get(filePath), StandardCharsets.UTF_8.name());
-        String searching;
+    public void delete() throws IOException {
+        String searchingBy;
         while (true) {
             System.out.println("Use way in which you want to delete a record:\n" +
                     "1. By phone number\n" +
@@ -47,54 +49,39 @@ public class PersonService {
                     "4. By age \n" +
                     "5. Delete all\n" +
                     "6. Go back\n");
-            searching = reader.readLine();
-            if (searching.equals("1")) {
+            searchingBy = reader.readLine();
+            if (searchingBy.equals("1")) {
                 System.out.println("Enter phone you want delete a record:");
-                searching = inputPhone();
+                searchingBy = inputPhone();
                 break;
-            } else if (searching.equals("2")) {
+            } else if (searchingBy.equals("2")) {
                 System.out.println("Enter first name you want delete a record:");
-                searching = inputName();
+                searchingBy = inputName();
                 break;
-            } else if (searching.equals("3")) {
+            } else if (searchingBy.equals("3")) {
                 System.out.println("Enter second name you want delete a record:");
-                searching = inputName();
+                searchingBy = inputName();
                 break;
-            } else if (searching.equals("4")) {
+            } else if (searchingBy.equals("4")) {
                 System.out.println("Enter age which you want delete a record by: ");
-                searching = inputAge();
+                searchingBy = inputAge();
                 break;
-            } else if (searching.equals("5")) {
+            } else if (searchingBy.equals("5")) {
                 System.out.println("Are you sure? Input Yes/No");
-                searching = reader.readLine();
-                if (searching.equalsIgnoreCase("yes")) {
+                searchingBy = reader.readLine();
+                if (searchingBy.equalsIgnoreCase("yes")) {
                     System.out.println("Success");
+                    book = Collections.emptyList();
                 }
                 return;
-            } else if (searching.equals("6")) {
+            } else if (searchingBy.equals("6")) {
                 return;
             } else
                 System.out.println("Invalid character, choose number from 1 to 6: ");
         }
 
-        List<String> notes = new ArrayList<>();
-
-        while (scanner.hasNextLine()) {
-            notes.add(scanner.nextLine());
-        }
-        String finalSearching = searching;
-        notes.removeIf(s -> s.contains(finalSearching));
-//        ______________________________
-        File fileTOWrite = new File(filePath);
-        FileWriter writer = new FileWriter(fileTOWrite, true);
-        notes.forEach(note->{
-            try {
-                writer.write(note);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        });
-        writer.close();
+        String searchingByCopy = (searchingBy);
+        book.removeIf(s -> s.contains(searchingByCopy));
     }
 
     private String inputName() throws IOException {
@@ -133,19 +120,18 @@ public class PersonService {
         }
     }
 
-    private void writeRecord(String stringToWrite) {
-        try (PrintWriter writer = new PrintWriter(new FileWriter(filePath, StandardCharsets.UTF_8, true))) {
-            writer.println(stringToWrite);
-        } catch (IOException e) {
-            e.printStackTrace();
+    public static PersonService getInstance(List<String> book) {
+        if (instance == null) {
+            instance = new PersonService(book);
         }
+        return instance;
     }
 
-    public void printAll() {
-        try (Scanner scanner = new Scanner(Paths.get(filePath), StandardCharsets.UTF_8.name())) {
-            System.out.println(scanner.useDelimiter("\\A").next());
-        } catch (NoSuchElementException | IOException e) {
-            System.out.println("Yellow book is empty!");
-        }
+    public List<String> getBook() {
+        return this.book;
+    }
+
+    public void printAll(){
+        System.out.println(book);
     }
 }

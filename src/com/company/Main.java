@@ -1,36 +1,27 @@
 package com.company;
 
+import com.company.services.IOservice;
 import com.company.services.PersonService;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-
-//todo delete implementation
 
 
 public class Main {
 
-    static BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
-    static List<String> consoleValues = new ArrayList<>() {{
-        add("1");
-        add("2");
-        add("3");
-        add("4");
-        add("5");
-    }};
+    private static BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
 
+    private static IOservice iOservice = IOservice.getInstance();
 
+    private static List<String> consoleValues = new ArrayList<>(Arrays.asList("1", "2", "3", "4", "5"));
 
     public static void main(String[] args) throws Exception {
-        startUI();
-    }
 
-    public static void startUI() throws Exception {
-        PersonService service = new PersonService();
+        List<String> bookNotes = iOservice.initialRead();
+        PersonService personService = PersonService.getInstance(bookNotes);
 
         while (true) {
             System.out.println("Choose :\n " +
@@ -42,30 +33,26 @@ public class Main {
 
             String userInput = reader.readLine();
             if (consoleValues.contains(userInput)) {
-                if (userInput.equals("1")) {
-                    service.addRecord();
+                switch (userInput) {
+                    case "1":
+                        personService.addRecord();
+                        break;
+                    case "2":
+                        System.out.println("Edit in development...");
+                        break;
+                    case "3":
+                        personService.delete();
+                        break;
+                    case "4":
+                        personService.printAll();
+                        break;
+                    case "5":
+                        System.out.println("Are you sure? Input: Yes/No");
+                        String userInput1 = reader.readLine();
+                        if (userInput1.toLowerCase().equals("yes"))
+                            iOservice.saveAndClose(personService.getBook());
                 }
-                else if (userInput.equals("2")) {
-                    System.out.println("Second func");
-                }
-                else if (userInput.equals("3")) {
-                    service.delete();
-                }
-                else if (userInput.equals("4")) {
-                    service.printAll();
-                }
-                else if (userInput.equals("5")) {
-                    System.out.println("Are you sure? Input: Yes/No");
-                    String userInput1 = reader.readLine();
-                    if (userInput1.toLowerCase().equals("yes"))
-                        System.exit(0);
-                    else
-                        startUI();
-
-                }
-
-            }
-            else System.out.println("Invalid data");
+            } else System.out.println("Invalid data");
         }
     }
 }
